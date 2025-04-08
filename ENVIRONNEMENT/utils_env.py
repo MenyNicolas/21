@@ -89,18 +89,28 @@ def resultat(main_dealer, main_joueur, is_doubled):
     elif valeur_main(main_joueur) == valeur_main(main_dealer): return 0
     else: return -1
 
-def end_of_hand(main_dealer, main_joueur, action_stack, running_count, sabot):
+def end_of_hand(main_dealer, main_joueur, action_stack, running_count, sabot, historique_df):
     true_count = int(running_count / (len(sabot) / 52))
     resultat_main = resultat(main_dealer, main_joueur, action_stack[-1] == 'D')
 
-    # Création d'une série de suivi
+    total_joueur = valeur_main(main_joueur)
+    total_dealer = valeur_main(main_dealer)
+
+    # Création de la série de suivi
     series_resultat = pd.Series({
         'main_joueur': main_joueur,
         'main_dealer': main_dealer,
         'actions': action_stack,
+        'total_joueur': total_joueur,
+        'total_dealer': total_dealer,
         'running_count': running_count,
         'true_count': true_count,
         'résultat': resultat_main
     })
 
-    return series_resultat
+    # Ajout à la DataFrame (en ligne)
+    historique_df = pd.concat([historique_df, series_resultat.to_frame().T], ignore_index=True)
+
+    print(historique_df )
+
+    return historique_df
