@@ -44,7 +44,21 @@ def split_management(main_joueur, running_count, sabot):
     running_count = update_running_count(carte1, running_count)
     running_count = update_running_count(carte2, running_count)
 
-    return main_1, main_2, running_count
+    return main_1, main_2, running_count, sabot
+
+def hit_management(main_joueur, running_count, sabot):
+    carte = sabot.pop()
+    main_joueur.append(carte)
+    running_count = update_running_count(carte, running_count)
+
+    return main_joueur, running_count, sabot
+
+def double_management(main_joueur, running_count, sabot):
+    carte = sabot.pop()
+    main_joueur.append(carte)
+    running_count = update_running_count(carte, running_count)
+
+    return main_joueur, running_count, sabot
 
 def valeur_main(main_joueur):
     total = 0
@@ -61,3 +75,32 @@ def valeur_main(main_joueur):
         ace_count -= 1
 
     return total
+
+def resultat(main_dealer, main_joueur, is_doubled):
+    mise = 1
+    if is_doubled: mise *= 2
+
+    if valeur_main(main_joueur) > 21: return -mise
+    elif valeur_main(main_dealer) > 21: return mise
+    elif blackjack(main_joueur):
+        if blackjack(main_dealer): return 0
+        else: return 1.5*mise
+    elif valeur_main(main_joueur) > valeur_main(main_dealer): return mise
+    elif valeur_main(main_joueur) == valeur_main(main_dealer): return 0
+    else: return -1
+
+def end_of_hand(main_dealer, main_joueur, action_stack, running_count, sabot):
+    true_count = int(running_count / (len(sabot) / 52))
+    resultat_main = resultat(main_dealer, main_joueur, action_stack[-1] == 'D')
+
+    # Création d'une série de suivi
+    series_resultat = pd.Series({
+        'main_joueur': main_joueur,
+        'main_dealer': main_dealer,
+        'actions': action_stack,
+        'running_count': running_count,
+        'true_count': true_count,
+        'résultat': resultat_main
+    })
+
+    return series_resultat
