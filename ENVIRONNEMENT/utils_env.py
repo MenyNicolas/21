@@ -46,14 +46,7 @@ def split_management(main_joueur, running_count, sabot):
 
     return main_1, main_2, running_count, sabot
 
-def hit_management(main_joueur, running_count, sabot):
-    carte = sabot.pop()
-    main_joueur.append(carte)
-    running_count = update_running_count(carte, running_count)
-
-    return main_joueur, running_count, sabot
-
-def double_management(main_joueur, running_count, sabot):
+def hit_double_management(main_joueur, running_count, sabot):
     carte = sabot.pop()
     main_joueur.append(carte)
     running_count = update_running_count(carte, running_count)
@@ -89,9 +82,12 @@ def resultat(main_dealer, main_joueur, is_doubled):
     elif valeur_main(main_joueur) == valeur_main(main_dealer): return 0
     else: return -1
 
-def end_of_hand(main_dealer, main_joueur, action_stack, running_count, sabot, historique_df):
+def fin_de_tour(main_dealer, main_joueur, action_stack, running_count, sabot, historique_df):
+    is_doubled = False
+    if(len(action_stack) > 0): is_doubled = action_stack[-1] == 'D'
+
     true_count = int(running_count / (len(sabot) / 52))
-    resultat_main = resultat(main_dealer, main_joueur, action_stack[-1] == 'D')
+    resultat_main = resultat(main_dealer, main_joueur, is_doubled)
 
     total_joueur = valeur_main(main_joueur)
     total_dealer = valeur_main(main_dealer)
@@ -105,12 +101,8 @@ def end_of_hand(main_dealer, main_joueur, action_stack, running_count, sabot, hi
         'total_dealer': total_dealer,
         'running_count': running_count,
         'true_count': true_count,
-        'résultat': resultat_main
+        'résultat': resultat_main,
+        'is_doubled': is_doubled
     })
 
-    # Ajout à la DataFrame (en ligne)
-    historique_df = pd.concat([historique_df, series_resultat.to_frame().T], ignore_index=True)
-
-    print(historique_df )
-
-    return historique_df
+    return pd.concat([historique_df, series_resultat.to_frame().T], ignore_index=True)
