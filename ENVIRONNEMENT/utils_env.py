@@ -6,18 +6,20 @@ import pandas as pd
 NUM_DECKS = 6
 
 def creer_sabot(num_decks=NUM_DECKS):
-    deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11] * 4 * num_decks
+    deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 'J', 'Q', 'K', 11] * 4 * num_decks
     random.shuffle(deck)
     return deck
+
 
 def update_running_count(card, count):
     if card in [2, 3, 4, 5, 6]:
         return count + 1
-    elif card in [10, 11]:
+    elif card in [10, 'J', 'Q', 'K', 11]:
         return count - 1
     else:
         return count
 
+'''
 def distribution_initial_pair(deck, running_count):
     dealer = []
 
@@ -44,6 +46,7 @@ def distribution_initial_pair(deck, running_count):
         running_count = update_running_count(card, running_count)
 
     return player.copy(), dealer.copy(), running_count
+'''
 
 def distribution_initial(deck, running_count):
     player = []
@@ -56,7 +59,7 @@ def distribution_initial(deck, running_count):
     return player.copy(), dealer.copy(), running_count
 
 def blackjack(main):
-    return len(main) == 2 and sorted(main) == [10, 11]
+    return len(main) == 2 and valeur_main(main) == 21
 
 def is_pair(main_joueur):
     return len(main_joueur) == 2 and main_joueur[0] == main_joueur[1]
@@ -82,20 +85,26 @@ def hit_double_management(main_joueur, running_count, sabot):
 
     return main_joueur.copy(), running_count, sabot
 
+def valeur_carte(carte):
+    return 10 if carte in ['J', 'Q', 'K'] else carte
+
 def valeur_main(main_joueur):
     total = 0
     ace_count = 0
 
     for card in main_joueur:
-        if card == 11:
+        v = valeur_carte(card)
+        if v == 11:
             ace_count += 1
-        total += card
+        total += v
 
     while total > 21 and ace_count > 0:
         total -= 10
         ace_count -= 1
 
     return total
+
+
 
 def resultat(main_dealer, main_joueur, is_doubled):
     mise = 2 if is_doubled else 1

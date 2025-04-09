@@ -45,7 +45,7 @@ def partie_BJ():
     historique_df.to_csv('historique_df.csv', index=False)
 
 def tour_BJ(sabot, running_count, historique_df):
-    main_joueur, main_dealer, running_count = utils_env.distribution_initial_pair(sabot, running_count)
+    main_joueur, main_dealer, running_count = utils_env.distribution_initial(sabot, running_count)
 
     # Si le croupier a blackjack, on retourne une seule main
     if utils_env.blackjack(main_dealer):
@@ -119,14 +119,14 @@ def gerer_toutes_les_mains(main_joueur, main_dealer, running_count, sabot):
             main_queue.append({
                 "main": main_1.copy(),
                 "action_stack": action_stack.copy(),
-                "security": sorted(main_1) == [11, 11]
+                "security": sorted([utils_env.valeur_carte(c) for c in main_1]) == [11, 11]
             })
             # print(f"[SPLIT effectué] → Carte1: {main_1[0]}, Carte2: {main_1[1]}, taille du sabot: {len(sabot)}")
 
             main_queue.append({
                 "main": main_2.copy(),
                 "action_stack": action_stack.copy(),
-                "security": sorted(main_2) == [11, 11]
+                "security": sorted([utils_env.valeur_carte(c) for c in main_2]) == [11, 11]
             })
             # print(f"[SPLIT effectué] → Carte1: {main_2[0]}, Carte2: {main_2[1]}, taille du sabot: {len(sabot)}")
 
