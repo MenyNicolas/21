@@ -8,15 +8,9 @@ import pandas as pd
 import ENVIRONNEMENT.utils_env as utils_env
 from IA.IA import IA_BJ
 
-def log(action_stack, main_joueur, main_dealer, running_count):
-    print("\n-------------------log-------------------")
-    print(f"Main joueur: {main_joueur} | Main dealer: {main_dealer} | Actions: {action_stack} | Running count: {running_count}")
-    print("-----------------------------------------\n")
+NB_SIMULATIONS = 100  # ← à modifier par le programmeur
 
 def partie_BJ():
-    running_count = 0
-    sabot = utils_env.creer_sabot()
-
     historique_df = pd.DataFrame(columns=[
         'main_joueur',
         'main_dealer',
@@ -26,21 +20,35 @@ def partie_BJ():
         'running_count',
         'true_count',
         'résultat',
-        'is_doubled'
+        'is_doubled',
+        'id_sabot',
+        'taille_sabot',
+        'paquet_restant',
+        'bj_joueur',
+        'bj_dealer'
     ])
 
-    while len(sabot) > (utils_env.NUM_DECKS * 52 * 0.25):
-        all_mains, main_dealer, running_count, sabot = tour_BJ(sabot, running_count, historique_df)
+    id_sabot = 0
 
-        for main_joueur, action_stack in all_mains:
-            historique_df = utils_env.fin_de_tour(
-                main_dealer,
-                main_joueur,
-                action_stack,
-                running_count,
-                sabot,
-                historique_df
-            )
+    for _ in range(NB_SIMULATIONS):
+        running_count = 0
+        sabot = utils_env.creer_sabot()
+
+        while len(sabot) > (utils_env.NUM_DECKS * 52 * 0.25):
+            all_mains, main_dealer, running_count, sabot = tour_BJ(sabot, running_count, historique_df)
+
+            for main_joueur, action_stack in all_mains:
+                historique_df = utils_env.fin_de_tour(
+                    main_dealer,
+                    main_joueur,
+                    action_stack,
+                    running_count,
+                    sabot,
+                    historique_df,
+                    id_sabot
+                )
+        
+        id_sabot += 1
 
     historique_df.to_csv('historique_df.csv', index=False)
 
@@ -113,7 +121,6 @@ def gerer_toutes_les_mains(main_joueur, main_dealer, running_count, sabot):
         if utils_env.is_pair(main) and IA_BJ(3, action_stack, main, main_dealer, running_count, sabot):
             action_stack.append("SP")
 
-            # print(f"sabot avant split = {len(sabot)}")
             main_1, main_2, running_count, sabot = utils_env.split_management(main.copy(), running_count, sabot)
 
             main_queue.append({
@@ -121,14 +128,11 @@ def gerer_toutes_les_mains(main_joueur, main_dealer, running_count, sabot):
                 "action_stack": action_stack.copy(),
                 "security": sorted([utils_env.valeur_carte(c) for c in main_1]) == [11, 11]
             })
-            # print(f"[SPLIT effectué] → Carte1: {main_1[0]}, Carte2: {main_1[1]}, taille du sabot: {len(sabot)}")
-
             main_queue.append({
                 "main": main_2.copy(),
                 "action_stack": action_stack.copy(),
                 "security": sorted([utils_env.valeur_carte(c) for c in main_2]) == [11, 11]
             })
-            # print(f"[SPLIT effectué] → Carte1: {main_2[0]}, Carte2: {main_2[1]}, taille du sabot: {len(sabot)}")
 
             continue
 

@@ -68,8 +68,6 @@ def split_management(main_joueur, running_count, sabot):
     carte1 = sabot.pop()
     carte2 = sabot.pop()
 
-    # print(f"SPLIT >> Carte1 : {carte1}, Carte2 : {carte2}, taille sabot : {len(sabot)}")
-
     main_1 = [main_joueur[0], carte1]
     main_2 = [main_joueur[1], carte2]
 
@@ -122,10 +120,10 @@ def resultat(main_dealer, main_joueur, is_doubled):
     else:
         return -mise
 
-def fin_de_tour(main_dealer, main_joueur, action_stack, running_count, sabot, historique_df):
+def fin_de_tour(main_dealer, main_joueur, action_stack, running_count, sabot, historique_df, id_sabot):
     is_doubled = action_stack[-1] == 'D' if action_stack else False
 
-    true_count = int(running_count / (len(sabot) / 52)) if len(sabot) > 0 else 0
+    true_count = (running_count / (len(sabot) / 52)) if len(sabot) > 0 else 0
     resultat_main = resultat(main_dealer, main_joueur, is_doubled)
 
     total_joueur = valeur_main(main_joueur)
@@ -140,7 +138,12 @@ def fin_de_tour(main_dealer, main_joueur, action_stack, running_count, sabot, hi
         'running_count': running_count,
         'true_count': true_count,
         'résultat': resultat_main,
-        'is_doubled': is_doubled
+        'is_doubled': is_doubled,
+        'id_sabot': id_sabot,
+        'taille_sabot': len(sabot),
+        'paquet_restant': (len(sabot) / 52),
+        'bj_joueur': blackjack(main_joueur),
+        'bj_dealer': blackjack(main_dealer)
     })
 
     return pd.concat([historique_df, series_resultat.to_frame().T], ignore_index=True)

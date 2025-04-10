@@ -8,6 +8,22 @@ import random
 
 import IA.utils_ia as utils_ia
 
+########################################################
+# Fonctions utiles pour l'IA
+########################################################
+
+def valeur_carte(carte):
+    if carte in ['J', 'Q', 'K']:
+        return 10
+    else:
+        return carte
+    
+def valeur_main(main):
+    return sum(valeur_carte(carte) for carte in main)
+
+########################################################
+
+
 def IA_BJ(id_action, action_stack, main_joueur, main_dealer, running_count, sabot):
 
     true_count = int(running_count / (len(sabot) / 52))
@@ -30,6 +46,8 @@ def IA_BJ(id_action, action_stack, main_joueur, main_dealer, running_count, sabo
     # gestion stand hit double
     if(id_action == 4):
         double_possible = len(main_joueur) == 2
+        if(valeur_main(main_joueur) == 21):
+            return 'S'  
         return random.choice(['H', 'S', 'D'])
     
     return 0
